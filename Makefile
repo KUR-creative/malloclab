@@ -12,15 +12,40 @@ CFLAGS = -Wall -O0 -m32 -g
 OBJS = mdriver.o mm.o memlib.o fsecs.o fcyc.o clock.o ftimer.o
 
 #mdriver: $(OBJS)
-#	$(CC) $(CFLAGS) -o mdriver $(OBJS)
+#   $(CC) $(CFLAGS) -o mdriver $(OBJS)
 
-t: $(OBJS)
+t:
+	$(CC) $(CFLAGS) -o mdriver $(OBJS)
+	python auto-grader.py
+
+full: $(OBJS)
 	$(CC) $(CFLAGS) -o mdriver $(OBJS)
 	#----------------------------------------------------------------
 	./mdriver -vlga -f traces/short1.rep
 	#----------------------------------------------------------------
 	./mdriver -vlga -f traces/short2.rep
 	#----------------------------------------------------------------
+	./mdriver -vlga -f traces/amptjp-bal.rep
+	#----------------------------------------------------------------
+	./mdriver -vlga -f traces/binary-bal.rep
+	#----------------------------------------------------------------
+	./mdriver -vlga -f traces/binary2-bal.rep
+	#----------------------------------------------------------------
+	./mdriver -vlga -f traces/cccp-bal.rep
+	#----------------------------------------------------------------
+	./mdriver -vlga -f traces/coalescing-bal.rep
+	#----------------------------------------------------------------
+	./mdriver -vlga -f traces/cp-decl-bal.rep
+	#----------------------------------------------------------------
+	./mdriver -vlga -f traces/expr-bal.rep
+	#----------------------------------------------------------------
+	./mdriver -vlga -f traces/random-bal.rep
+	#----------------------------------------------------------------
+	./mdriver -vlga -f traces/random2-bal.rep
+	#----------------------------------------------------------------
+	./mdriver -vlga -f traces/realloc-bal.rep
+	#----------------------------------------------------------------
+	./mdriver -vga -f traces/realloc2-bal.rep
 
 mdriver.o: mdriver.c fsecs.h fcyc.h clock.h memlib.h config.h mm.h
 memlib.o: memlib.c memlib.h
