@@ -9,14 +9,20 @@ CC = gcc
 CFLAGS = -Wall -O0 -m32 -g
 #CFLAGS = -Wall -O2 -m32
 
+#LIB = -lcmocka 
+LIB = -lcmocka32 
+
 OBJS = mdriver.o mm.o memlib.o fsecs.o fcyc.o clock.o ftimer.o
 
 #mdriver: $(OBJS)
-#   $(CC) $(CFLAGS) -o mdriver $(OBJS)
+	#$(CC) $(CFLAGS) -o mdriver $(OBJS)
 
-t:
-	$(CC) $(CFLAGS) -o mdriver $(OBJS)
+ta: $(OBJS)
+	$(CC) $(CFLAGS) -o mdriver $(OBJS) 
 	python auto-grader.py
+t:
+	$(CC) $(CFLAGS) -o mm-test memlib.o mm.c mm.h memlib.h mm-test.c $(LIB)
+	./mm-test 2>&1 | python printer.py		#stderr to stdout.
 
 full: $(OBJS)
 	$(CC) $(CFLAGS) -o mdriver $(OBJS)

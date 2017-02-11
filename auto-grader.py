@@ -50,17 +50,17 @@ NOCOL = '\033[0m'
 
 resultArr = [] # (trace-name, is-correct?, score)
 traceArr = [
-    'amptjp-bal.rep',
-    'binary-bal.rep',
-    'binary2-bal.rep',
-    'cccp-bal.rep',
-    'coalescing-bal.rep',
-    'cp-decl-bal.rep',
-    'expr-bal.rep',
-    'random-bal.rep',
-    'random2-bal.rep',
-    'realloc-bal.rep',
-    'realloc2-bal.rep',
+    #'amptjp-bal.rep',
+    #'binary-bal.rep',
+    #'binary2-bal.rep',
+    #'cccp-bal.rep',
+    #'coalescing-bal.rep',
+    #'cp-decl-bal.rep',
+    #'expr-bal.rep',
+    #'random-bal.rep',
+    #'random2-bal.rep',
+    #'realloc-bal.rep',
+    #'realloc2-bal.rep',
     'short1.rep',
     'short2.rep',
 ]
@@ -98,6 +98,7 @@ effectiveness = float(scoreSum) / float(100*len(traceArr)) * 100
 print("-------------------------------------")
 print("score_sum:  " + str(scoreSum)) 
 print("percentage: " + str(effectiveness) + " %")
+
 if isSuccess:
     subprocess.call([ 'printf', LGREEN + "\t    SUCCESS!\n" + NOCOL ])
 else:
