@@ -44,6 +44,10 @@ print(arr);
 
 import subprocess 
 
+RED = '\033[0;31m'
+LGREEN = '\033[1;32m'
+NOCOL = '\033[0m'
+
 resultArr = [] # (trace-name, is-correct?, score)
 traceArr = [
     'amptjp-bal.rep',
@@ -81,14 +85,20 @@ print("\nfile\t\t\tvaiid?\tscore")
 print("-------------------------------------")
 
 scoreSum = 0 
+isSuccess = True
 for result in resultArr:
     if result[1] == False:
         print("{0}\t\t{1}\t - ".format(result[0][:15], result[1]))
     else:
         print("{0}\t\t{1}\t{2}".format(result[0][:15], result[1], result[2]) + "\t" + result[3][10:])
     scoreSum += result[2]
+    isSuccess = (isSuccess and result[1])
 
 effectiveness = float(scoreSum) / float(100*len(traceArr)) * 100
 print("-------------------------------------")
 print("score_sum:  " + str(scoreSum)) 
-print("percentage: " + str(effectiveness) + " %\n")
+print("percentage: " + str(effectiveness) + " %")
+if isSuccess:
+    subprocess.call([ 'printf', LGREEN + "\t    SUCCESS!\n" + NOCOL ])
+else:
+    subprocess.call([ 'printf', RED + "\t    FAIL\n" + NOCOL ])

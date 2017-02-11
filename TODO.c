@@ -20,4 +20,6 @@ more: pro-like development!
 		on/off kprint(color, flaglist, ...) function macro(colored)
 			you can on/off to set the flaglist(global var)
 
+	auto-grader: FAIL / SUCCESS
+
 1. implicit free list
