@@ -9,8 +9,7 @@ CC = gcc
 CFLAGS = -Wall -O0 -m32 -g
 #CFLAGS = -Wall -O2 -m32
 
-#LIB = -lcmocka 
-LIB = -lcmocka32 
+LIB = -lcmocka 
 
 OBJS = mdriver.o mm.o memlib.o fsecs.o fcyc.o clock.o ftimer.o
 

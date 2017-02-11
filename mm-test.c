@@ -19,6 +19,7 @@ static void t1(void** state){
 	printf("3");
 	printf("4\n");
 	void* addr = mm_malloc(1024);
+	assert_int_equal(addr,0x10);
 	assert_int_equal(1,2);
 }
 
