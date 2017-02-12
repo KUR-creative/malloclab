@@ -46,6 +46,13 @@ team_t team = {
 
 /* 
  * mm_init - initialize the malloc package.
+ * 
+ * to use my malloc package, you must call this function first.
+ *
+ * ret
+ * -1	initialization failed.
+ * 0	initialization succeeded.
+ *
  */
 int mm_init(void)
 {
@@ -54,12 +61,19 @@ int mm_init(void)
 
 /* 
  * mm_malloc - Allocate a block by incrementing the brk pointer.
- *     Always allocate a block whose size is a multiple of the alignment.
+ *
+ * Always allocate a block whose size is a multiple of the alignment.
+ * size of block is AT LEAST size(param) byte. it would be bigger than
+ * size(param)
+ *
+ * ret
+ * 0	failed.
+ * ptr	valid address of allocated block PAYLOAD.
  */
-void *mm_malloc(size_t size)
+void* mm_malloc(size_t size)
 {
     int newsize = ALIGN(size + SIZE_T_SIZE);
-    void *p = mem_sbrk(newsize);
+    void* p = mem_sbrk(newsize);
     if (p == (void *)-1)
 	return NULL;
     else {
@@ -69,7 +83,7 @@ void *mm_malloc(size_t size)
 }
 
 /*
- * mm_free - Freeing a block does nothing.
+ * mm_free - Freeing a block.
  */
 void mm_free(void *ptr)
 {
@@ -77,6 +91,8 @@ void mm_free(void *ptr)
 
 /*
  * mm_realloc - Implemented simply in terms of mm_malloc and mm_free
+ *
+ * (not now)
  */
 void *mm_realloc(void *ptr, size_t size)
 {

@@ -22,5 +22,22 @@ more: pro-like development!
 
 	//auto-grader: FAIL / SUCCESS
 
-1. implicit free list: first, let's see SUCCESS!
+must know:
 	how to alloc memory?
+		use mem_sbrk(incr)
+
+	how to dealloc memory?
+		actually don't free anything unless it call mem_deinit
+
+//TODO:
+
+1. implicit free list: first, let's see SUCCESS!
+
+
+
+
+
+
+
+
+

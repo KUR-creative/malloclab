@@ -1,47 +1,3 @@
-'''
-
-# pass cmd arguments
-
-import argparse
-parser = argparse.ArgumentParser(description='ADD YOUR DESCRIPTION HERE')
-parser.add_argument('-i','--input', help='Input file name',required=True)
-parser.add_argument('-o','--output',help='Output file name', required=True)
-args = parser.parse_args()
-
-print("I: %s" % args.input)
-print("O: %s" % args.output)
-
-
-# run sh script in py
-
-import subprocess 
-subprocess.call(["ps", "-l"])
-
-print("---------------------");
-
-
-# get stdout output
-
-proc = subprocess.Popen('ps', stdout=subprocess.PIPE)
-tmp = proc.stdout.read()
-
-print(tmp);
-
-
-# file to string
-
-f = open("out.txt");
-string = f.read();
-
-print(string);
-
-
-# string to array
-arr = string.split('\n');
-print(arr);
-
-'''
-
 import subprocess 
 
 RED = '\033[0;31m'
@@ -103,3 +59,50 @@ if isSuccess:
     subprocess.call([ 'printf', LGREEN + "\t    SUCCESS!\n" + NOCOL ])
 else:
     subprocess.call([ 'printf', RED + "\t    FAIL\n" + NOCOL ])
+
+
+
+'''
+
+# pass cmd arguments
+
+import argparse
+parser = argparse.ArgumentParser(description='ADD YOUR DESCRIPTION HERE')
+parser.add_argument('-i','--input', help='Input file name',required=True)
+parser.add_argument('-o','--output',help='Output file name', required=True)
+args = parser.parse_args()
+
+print("I: %s" % args.input)
+print("O: %s" % args.output)
+
+
+# run sh script in py
+
+import subprocess 
+subprocess.call(["ps", "-l"])
+
+print("---------------------");
+
+
+# get stdout output
+
+proc = subprocess.Popen('ps', stdout=subprocess.PIPE)
+tmp = proc.stdout.read()
+
+print(tmp);
+
+
+# file to string
+
+f = open("out.txt");
+string = f.read();
+
+print(string);
+
+
+# string to array
+arr = string.split('\n');
+print(arr);
+
+'''
+
