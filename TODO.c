@@ -32,7 +32,8 @@ must know:
 //TODO:
 
 1. implicit free list: first, let's see SUCCESS!
-
+	//why my unit test always fail?
+		//because not mm_init but TESTER need to call mem_init(). 
 
 
 

@@ -56,6 +56,7 @@ team_t team = {
  */
 int mm_init(void)
 {
+	mem_sbrk(20000);
     return 0;
 }
 
