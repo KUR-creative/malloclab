@@ -20,7 +20,8 @@ ta: $(OBJS)
 	$(CC) $(CFLAGS) -o mdriver $(OBJS) 
 	python auto-grader.py
 t:
-	$(CC) $(CFLAGS) -o mm-test memlib.o mm.c mm.h memlib.h mm-test.c $(LIB)
+	$(CC) $(CFLAGS) -c memlib.c memlib.h
+	$(CC) $(CFLAGS) -o mm-test memlib.c memlib.h mm.c mm.h mm-test.c $(LIB)
 	./mm-test 2>&1 | python printer.py		#stderr to stdout.
 
 full: $(OBJS)
@@ -54,6 +55,7 @@ full: $(OBJS)
 
 mdriver.o: mdriver.c fsecs.h fcyc.h clock.h memlib.h config.h mm.h
 memlib.o: memlib.c memlib.h
+	#$(CC) $(CFLAGS) -o memlib.o memlib.c memlib.h
 mm.o: mm.c mm.h memlib.h
 fsecs.o: fsecs.c fsecs.h config.h
 fcyc.o: fcyc.c fcyc.h
