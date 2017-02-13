@@ -68,7 +68,7 @@ int mm_init(void)
  * size(param)
  *
  * ret
- * 0	failed.
+ * NULL	failed.
  * ptr	valid address of allocated block PAYLOAD.
  */
 void* mm_malloc(size_t size)

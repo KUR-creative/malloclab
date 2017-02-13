@@ -14,10 +14,12 @@
 #include "memlib.h"
 #include "mm.h"
 
-/* A test case that does nothing and succeeds. */
-static void null_test_success(void **state) {
-    (void) state; /* unused */
-}
+
+// simple [suite__case] function generator
+// need to manually insert: (void)state;
+#define TEST(suite, name)	\
+	static void suite##__##name(void** state)	
+
 
 static void t1(void** state){
     (void) state; /* unused */
@@ -39,7 +41,6 @@ static void t1(void** state){
 
 int main(void) {
     const struct CMUnitTest tests[] = {
-        cmocka_unit_test(null_test_success),
         cmocka_unit_test(t1),
     };
     return cmocka_run_group_tests(tests, NULL, NULL);

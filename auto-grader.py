@@ -6,17 +6,17 @@ NOCOL = '\033[0m'
 
 resultArr = [] # (trace-name, is-correct?, score)
 traceArr = [
-    #'amptjp-bal.rep',
-    #'binary-bal.rep',
-    #'binary2-bal.rep',
-    #'cccp-bal.rep',
-    #'coalescing-bal.rep',
-    #'cp-decl-bal.rep',
-    #'expr-bal.rep',
-    #'random-bal.rep',
-    #'random2-bal.rep',
-    #'realloc-bal.rep',
-    #'realloc2-bal.rep',
+    'amptjp-bal.rep',
+    'binary-bal.rep',
+    'binary2-bal.rep',
+    'cccp-bal.rep',
+    'coalescing-bal.rep',
+    'cp-decl-bal.rep',
+    'expr-bal.rep',
+    'random-bal.rep',
+    'random2-bal.rep',
+    'realloc-bal.rep',
+    'realloc2-bal.rep',
     'short1.rep',
     'short2.rep',
 ]
