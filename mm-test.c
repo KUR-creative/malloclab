@@ -12,6 +12,8 @@
 #include <setjmp.h>
 #include <cmocka/cmocka.h>
 
+#define UNIT_TESTING 1
+
 // headers for my malloc mapckage
 #include <stdlib.h>
 #include "memlib.h"
@@ -30,7 +32,7 @@ TEST(malloc, retAdrrMustBeAligned8byte){
 	void* addr;
 
 	if(mm_init() != -1){	
-		addr = mm_malloc(2040);
+		addr = mm_malloc(1001);
 	}else{
 		puts("mm_init failed!");
 		exit(1);
@@ -44,7 +46,7 @@ TEST(malloc, argIsZeroThenReturnNULL){
 	(void)state;
 
 	//given
-	void* addr;
+	void*	addr;
 	if(mm_init() != -1){	
 		addr = mm_malloc(0);
 	}else{
@@ -56,21 +58,68 @@ TEST(malloc, argIsZeroThenReturnNULL){
 	assert_null(addr);
 }
 
+
+TEST(implicitFreeList, everyBlockSaveSizeInItsHeader){
+	(void)state;	
+	//skip();
+	//given
+	void*	base = NULL;
+	size_t	size = 1024;
+
+	//when
+	if(mm_init() != -1){	
+		base = mm_malloc(size);
+	}else{
+		puts("mm_init failed!");
+		exit(1);
+	}
+				*(int*)base = -1;	// write in payload..
+				printf("out malloc %d \n", GET(base));
+				printf("out malloc %d \n", GET_SIZE( HDRP(base) ));
+	//then
+	int		savedsize = GET_SIZE( HDRP(base) );
+	assert_int_equal(savedsize, size);
+}
+
+TEST(implicitFreeList, mallocSetsAllocBitInBlockHeaderWhenAllocation){
+	(void)state;
+	skip();
+	//given
+	void*	baseptr			= NULL;
+	int		is_allocated	= 0;
+
+	//when
+	if(mm_init() != -1){	
+		baseptr = mm_malloc(123);
+	}else{
+		puts("mm_init failed!");
+		exit(1);
+	}
+
+	//then
+	is_allocated = GET_ALLOC(baseptr);
+	assert_true(is_allocated);
+}
 static int setUp(void** state){
 	mem_init();// it must be called in TESTER!
+	puts("	setup");
 	return 0;
 }
 
 static int tearDown(void** state){
 	mem_reset_brk();
 	mem_deinit();
+	puts("	teardown");
 	return 0;
 }
 
 int main(void) {
     const struct CMUnitTest tests[] = {
-        cmocka_unit_test(malloc__retAdrrMustBeAligned8byte),
-		cmocka_unit_test(malloc__argIsZeroThenReturnNULL),
+        cmocka_unit_test_setup_teardown(malloc__retAdrrMustBeAligned8byte, setUp, tearDown),
+		cmocka_unit_test_setup_teardown(malloc__argIsZeroThenReturnNULL, setUp, tearDown),
+		// implicit free list
+		cmocka_unit_test_setup_teardown(implicitFreeList__everyBlockSaveSizeInItsHeader, setUp, tearDown),
+		cmocka_unit_test_setup_teardown(implicitFreeList__mallocSetsAllocBitInBlockHeaderWhenAllocation, setUp, tearDown),
     };
-    return cmocka_run_group_tests(tests, setUp, tearDown);
+    return cmocka_run_group_tests(tests, NULL, NULL);
 }
