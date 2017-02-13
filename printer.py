@@ -4,6 +4,8 @@ import fileinput
 RED = '\033[0;31m'
 GREEN = '\033[0;32m'
 LGREEN = '\033[1;32m'
+YELLOW = '\033[0;33m'
+LYELLOW = '\033[1;33m'
 CYAN = '\033[0;36m'
 LCYAN = '\033[1;36m'
 NOCOL = '\033[0m'
@@ -22,6 +24,8 @@ for line in fileinput.input():
         headColorPrinter(line, LGREEN)
     elif isStrInLine(line, '[==========]'):
         headColorPrinter(line, CYAN)
+    elif isStrInLine(line, '[  SKIPPED ]'):
+        headColorPrinter(line, LYELLOW)
     else:
         subprocess.call(['printf', NOCOL + line])
     pass
