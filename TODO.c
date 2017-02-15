@@ -64,8 +64,13 @@ read book carefully. and collect Requriements.
         //refactor mm_init error handling: Mm_init!
 
         //write block header correctly.
+    implement free -> let's see SUCCESS!
 
+    then mm_malloc SEARCH free list before it allocate new block.
 
+    implement heap checker
+
+    //write getBlockHeaderInfoMacros
 
 
 

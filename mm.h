@@ -23,8 +23,12 @@ extern void     Mm_init(void);
 #define PUT(p, val)     (*(unsigned int*)(p) = (val))
 
 /* Read the size and allocated fields from addres's p (NOT from HEAD!)*/
-#define GET_SIZE(p)     (GET(p) & ~0x7)
-#define GET_ALLOC(p)    (GET(p) & 0x1) 
+#define GET_SIZE_BITS(p)    (GET(p) & ~0x7)
+#define GET_ALLOC_BIT(p)    (GET(p) & 0x1) 
+
+/* Get the size and allocated fields from baseptr's HEADER */
+#define GET_SIZE(bp)    GET_SIZE_BITS( HDRP(bp) )
+#define IS_ALLOC(bp)    GET_ALLOC_BIT( HDRP(bp) )
 
 /* Ginven block ptr bp, compute address of its header and footer*/
 #define HDRP(bp)        ((char*)(bp) - WSIZE)

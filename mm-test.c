@@ -42,6 +42,22 @@
     static void suite##__##name(void** state)\
 
 
+TEST(macros, getBlockHeaderInfo){
+    (void)state;
+
+    //given
+    size_t  arr[10]  = { -1, 0x2, 0, };
+    void*   baseptr  = (void*)(arr + 1);
+
+    //when
+    size_t  size     = GET_SIZE(baseptr);
+    size_t  allocBit = IS_ALLOC(baseptr);
+
+    //then
+    assert_int_equal( size, (size_t)-1 & ~0x7 );
+    assert_int_equal( allocBit, (size_t)-1 & 0x1 );
+}
+
 TEST(malloc, retAdrrMustBeAligned8byte){
     (void)state;
     //skip();
@@ -88,9 +104,9 @@ TEST(implicitFreeList, everyBlockSaveSizeInItsHeader){
             //dPRINTn("block base word val", GET(base));
             //pPRINTn("       base address", base);
             //pPRINTn("     header address", HDRP(base));
-            //dPRINTn("    this block size", GET_SIZE( HDRP(base) ));
+            //dPRINTn("    this block size", GET_SIZE_BITS( HDRP(base) ));
     //then
-    int     savedsize = GET_SIZE( HDRP(base) );
+    int     savedsize = GET_SIZE_BITS( HDRP(base) );
     assert_int_equal(savedsize, block_size);
 }
 
@@ -108,7 +124,7 @@ TEST(implicitFreeList, mallocSetsAllocBitInBlockHeaderWhenAllocation){
 
     //then
     headerptr = HDRP(baseptr);
-    is_allocated = GET_ALLOC(headerptr);
+    is_allocated = GET_ALLOC_BIT(headerptr);
     assert_int_equal(is_allocated, 1);
 }
 
@@ -118,9 +134,9 @@ TEST(implicitFreeList, mm_initInsertAlignBlockInFronOfFreeList){
     void*   oldmem_brk  = NULL;
     void*   mem_brk     = NULL;
     int32_t remainder4  = 1;
+    oldmem_brk = mem_sbrk(0);  // it return now mem_brk.
 
     //when
-    oldmem_brk = mem_sbrk(0);  // it return now mem_brk.
     Mm_init();  // mm_init have to increment mem_brk!
     mem_brk = mem_sbrk(0);  
 
@@ -135,6 +151,15 @@ TEST(implicitFreeList, mm_initInsertAlignBlockInFronOfFreeList){
     assert_int_equal(oldaddr+WSIZE, nowaddr);
 }
 
+TEST(implicitFreeList, mm_freeSetHeaderAllocBitZero){
+    (void)state;
+    //given
+    
+    //when
+
+    //then
+    //assert_int_equal(alloc_bit, 0);
+}
 static int setUp(void** state){
     mem_init();// it must be called in TESTER!
     //printf("  mem_brk = %p is already aligned? why? \n", mem_sbrk(0));
@@ -149,12 +174,14 @@ static int tearDown(void** state){
 
 int main(void) {
     const struct CMUnitTest tests[] = {
+        cmocka_unit_test(macros__getBlockHeaderInfo),
         cmocka_unit_test_setup_teardown(malloc__retAdrrMustBeAligned8byte, setUp, tearDown),
         cmocka_unit_test_setup_teardown(malloc__argIsZeroThenReturnNULL, setUp, tearDown),
         // implicit free list
         cmocka_unit_test_setup_teardown(implicitFreeList__everyBlockSaveSizeInItsHeader, setUp, tearDown),
         cmocka_unit_test_setup_teardown(implicitFreeList__mallocSetsAllocBitInBlockHeaderWhenAllocation, setUp, tearDown),
         cmocka_unit_test_setup_teardown(implicitFreeList__mm_initInsertAlignBlockInFronOfFreeList, setUp, tearDown),
+        cmocka_unit_test_setup_teardown(implicitFreeList__mm_freeSetHeaderAllocBitZero, setUp, tearDown),
     };
     return cmocka_run_group_tests(tests, NULL, NULL);
 }
