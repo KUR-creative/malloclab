@@ -19,107 +19,142 @@
 #include "memlib.h"
 #include "mm.h"
 
+// useful print functions
+// they never cast!: DON'T input number that need casting!
+#define i32uPRINT(num)		printf("%X ", (num));
+#define i64uPRINT(num)		printf("%lX ", (num));
+
+#define i32uPRINTn(num)		printf("%X \n", (num));
+#define i64uPRINTn(num)		printf("%lX \n", (num));
+
+#define i32sPRINT(num)		printf("%d ", (num));
+#define i64sPRINT(num)		printf("%ld ", (num));
+
+#define i32sPRINTn(num)		printf("%d: \n", (num));
+#define i64sPRINTn(num)		printf("%ld: \n", (num));
+
+#define	pPRINTn(str,ptr)	printf(str": %p \n",(ptr))
+#define	dPRINTn(str,num)	printf(str": %d \n",(num))
 
 // simple [suite__case] function generator
 // need to manually insert: (void)state;
-#define TEST(suite, name)	\
-	static void suite##__##name(void** state)\
+#define TEST(suite, name)   \
+    static void suite##__##name(void** state)\
 
 
 TEST(malloc, retAdrrMustBeAligned8byte){
-	(void)state;
+    (void)state;
+    //skip();
 
-	void* addr;
+    //given
+    void*   addr;
+    int32_t remainder;
 
-	if(mm_init() != -1){	
-		addr = mm_malloc(1001);
-	}else{
-		puts("mm_init failed!");
-		exit(1);
-	}
+    //when
+    Mm_init();
+    addr = mm_malloc(7);
 
-	assert_non_null(addr);
-	assert_true( ((int32_t)addr % (int32_t)8 == 0) );
+    //then
+    assert_non_null(addr);
+    remainder = (int32_t)addr % (int32_t)8;
+    assert_int_equal(remainder,0);
 }
 
 TEST(malloc, argIsZeroThenReturnNULL){
-	(void)state;
+    (void)state;
 
-	//given
-	void*	addr;
-	if(mm_init() != -1){	
-		addr = mm_malloc(0);
-	}else{
-		puts("mm_init failed!");
-		exit(1);
-	}
+    //given
+    void*   addr;
+    Mm_init();
+    addr = mm_malloc(0);
 
-	//then
-	assert_null(addr);
+    //then
+    assert_null(addr);
 }
 
 
 TEST(implicitFreeList, everyBlockSaveSizeInItsHeader){
-	(void)state;	
-	//skip();
-	//given
-	void*	base = NULL;
-	size_t	size = 1024;
+    (void)state;    
+    //skip();
+    //given
+    void*   base         = NULL;
+    size_t  payload_size = 1004; 
+    size_t  block_size   = ALIGN(payload_size + WSIZE); 
 
-	//when
-	if(mm_init() != -1){	
-		base = mm_malloc(size);
-	}else{
-		puts("mm_init failed!");
-		exit(1);
-	}
-				*(int*)base = -1;	// write in payload..
-				printf("out malloc %d \n", GET(base));
-				printf("out malloc %d \n", GET_SIZE( HDRP(base) ));
-	//then
-	int		savedsize = GET_SIZE( HDRP(base) );
-	assert_int_equal(savedsize, size);
+    //when
+    Mm_init();
+    base = mm_malloc(payload_size);
+    *(int*)base = -1;   // write in payload..
+            //dPRINTn("block base word val", GET(base));
+            //pPRINTn("       base address", base);
+            //pPRINTn("     header address", HDRP(base));
+            //dPRINTn("    this block size", GET_SIZE( HDRP(base) ));
+    //then
+    int     savedsize = GET_SIZE( HDRP(base) );
+    assert_int_equal(savedsize, block_size);
 }
 
 TEST(implicitFreeList, mallocSetsAllocBitInBlockHeaderWhenAllocation){
-	(void)state;
-	skip();
-	//given
-	void*	baseptr			= NULL;
-	int		is_allocated	= 0;
+    (void)state;
+    //skip();
+    //given
+    void*   baseptr      = NULL;
+    int     is_allocated = 0;
+    char*   headerptr; 
 
-	//when
-	if(mm_init() != -1){	
-		baseptr = mm_malloc(123);
-	}else{
-		puts("mm_init failed!");
-		exit(1);
-	}
+    //when
+    Mm_init();
+    baseptr = mm_malloc(123);
 
-	//then
-	is_allocated = GET_ALLOC(baseptr);
-	assert_true(is_allocated);
+    //then
+    headerptr = HDRP(baseptr);
+    is_allocated = GET_ALLOC(headerptr);
+    assert_int_equal(is_allocated, 1);
 }
+
+TEST(implicitFreeList, mm_initInsertAlignBlockInFronOfFreeList){
+    (void)state;
+    //given
+    void*   oldmem_brk  = NULL;
+    void*   mem_brk     = NULL;
+    int32_t remainder4  = 1;
+
+    //when
+    oldmem_brk = mem_sbrk(0);  // it return now mem_brk.
+    Mm_init();  // mm_init have to increment mem_brk!
+    mem_brk = mem_sbrk(0);  
+
+    //then
+        //pPRINTn("mem_brk",mem_brk);
+        //i32uPRINTn(mem_brk);
+    remainder4 = (int32_t)mem_brk % (int32_t)4;
+    assert_int_equal(remainder4, 0);
+
+    int32_t oldaddr = (int32_t)oldmem_brk;
+    int32_t nowaddr = (int32_t)mem_brk;
+    assert_int_equal(oldaddr+WSIZE, nowaddr);
+}
+
 static int setUp(void** state){
-	mem_init();// it must be called in TESTER!
-	puts("	setup");
-	return 0;
+    mem_init();// it must be called in TESTER!
+    //printf("  mem_brk = %p is already aligned? why? \n", mem_sbrk(0));
+    return 0;
 }
 
 static int tearDown(void** state){
-	mem_reset_brk();
-	mem_deinit();
-	puts("	teardown");
-	return 0;
+    mem_reset_brk();
+    mem_deinit();
+    return 0;
 }
 
 int main(void) {
     const struct CMUnitTest tests[] = {
         cmocka_unit_test_setup_teardown(malloc__retAdrrMustBeAligned8byte, setUp, tearDown),
-		cmocka_unit_test_setup_teardown(malloc__argIsZeroThenReturnNULL, setUp, tearDown),
-		// implicit free list
-		cmocka_unit_test_setup_teardown(implicitFreeList__everyBlockSaveSizeInItsHeader, setUp, tearDown),
-		cmocka_unit_test_setup_teardown(implicitFreeList__mallocSetsAllocBitInBlockHeaderWhenAllocation, setUp, tearDown),
+        cmocka_unit_test_setup_teardown(malloc__argIsZeroThenReturnNULL, setUp, tearDown),
+        // implicit free list
+        cmocka_unit_test_setup_teardown(implicitFreeList__everyBlockSaveSizeInItsHeader, setUp, tearDown),
+        cmocka_unit_test_setup_teardown(implicitFreeList__mallocSetsAllocBitInBlockHeaderWhenAllocation, setUp, tearDown),
+        cmocka_unit_test_setup_teardown(implicitFreeList__mm_initInsertAlignBlockInFronOfFreeList, setUp, tearDown),
     };
     return cmocka_run_group_tests(tests, NULL, NULL);
 }

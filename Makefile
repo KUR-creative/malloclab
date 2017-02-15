@@ -23,7 +23,7 @@ t:
 	$(CC) $(CFLAGS) -c memlib.c memlib.h
 	$(CC) $(CFLAGS) -o mm-test memlib.c memlib.h mm.c mm.h mm-test.c $(LIB)
 	./mm-test 2>&1 | python printer.py		#stderr to stdout.
-
+		    	
 full: $(OBJS)
 	$(CC) $(CFLAGS) -o mdriver $(OBJS)
 	#----------------------------------------------------------------

@@ -35,14 +35,6 @@ team_t team = {
     ""
 };
 
-/* single word (4) or double word (8) alignment */
-#define ALIGNMENT 8
-
-/* rounds up to the nearest multiple of ALIGNMENT */
-#define ALIGN(size) (((size) + (ALIGNMENT-1)) & ~0x7)
-
-
-#define SIZE_T_SIZE (ALIGN(sizeof(size_t)))
 
 /* 
  * mm_init - initialize the malloc package.
@@ -50,13 +42,15 @@ team_t team = {
  * to use my malloc package, you must call this function first.
  *
  * ret
- * -1	initialization failed.
- * 0	initialization succeeded.
+ * -1   initialization failed.
+ * 0    initialization succeeded.
  *
  */
 int mm_init(void)
 {
-	mem_sbrk(20000);
+    if(mem_sbrk(WSIZE) == (void*)-1){
+        return -1;
+    }
     return 0;
 }
 
@@ -67,22 +61,38 @@ int mm_init(void)
  * size of block is AT LEAST size(param) byte. it would be bigger than
  * size(param)
  *
- * ret
- * NULL	failed.
- * ptr	valid address of allocated block PAYLOAD.
+ *ret
+ * NULL failed.
+ * ptr  valid address of allocated block PAYLOAD.
  */
 void* mm_malloc(size_t size)
 {
-	if(size == 0){
-		return NULL;
-	}
-    int newsize = ALIGN(size + SIZE_T_SIZE);
-    void* p = mem_sbrk(newsize);
-    if (p == (void *)-1)
-	return NULL;
-    else {
-        *(size_t *)p = size;
-        return (void *)((char *)p + SIZE_T_SIZE);
+    if(size == 0){
+        return NULL;
+    }
+
+    int     newsize = ALIGN(size + WSIZE);  // add header(4byte)!
+    void*   ptr     = mem_sbrk(newsize);    // ptr must be aligned.
+    if(ptr == (void*)-1)
+        return NULL;
+    else{
+        *(size_t*)ptr = PACK(newsize,1); // BLOCK size! NOT PAYLOAD size!
+                printf("-origin size = %d \n", size);
+                printf("-aligned size = %d \n", ALIGN(size));
+                printf("-ptr = %p \n", ptr);
+                printf("-in malloc %d \n", GET(ptr));
+        return (void*)((char*)ptr + WSIZE); // ptr points payload!
+    } 
+}
+
+/*
+ * error checked mm_init. 
+ */
+void Mm_init(void)
+{
+    if(mm_init() == -1){      
+        puts("mm_init failed!");
+        exit(1);
     }
 }
 
