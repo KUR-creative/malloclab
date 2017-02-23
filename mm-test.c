@@ -1,8 +1,8 @@
 /*
  * my malloc package unit test
  *
- * @t: write test case vim macro
- * @h: get name from test case
+ * @t:   write test case vim macro
+ * @h,j: get name from test case
  *
  */
 // headers for cmocka
@@ -12,29 +12,39 @@
 #include <setjmp.h>
 #include <cmocka/cmocka.h>
 
-#define UNIT_TESTING 1
 
 // headers for my malloc mapckage
 #include <stdlib.h>
 #include "memlib.h"
 #include "mm.h"
 
+#define UNIT_TESTING 1
+
+#ifdef UNIT_TESTING
+extern void mock_assert(const int result, const char* const expression,
+                        const char * const file, const int line);
+#undef assert
+#define assert(expression) \
+    mock_assert((int)(expression), #expression, __FILE__, __LINE__);
+#endif
+
+
 // useful print functions
 // they never cast!: DON'T input number that need casting!
-#define i32uPRINT(num)		printf("%X ", (num));
-#define i64uPRINT(num)		printf("%lX ", (num));
+#define i32uPRINT(num)      printf("%X ", (num));
+#define i64uPRINT(num)      printf("%lX ", (num));
 
-#define i32uPRINTn(num)		printf("%X \n", (num));
-#define i64uPRINTn(num)		printf("%lX \n", (num));
+#define i32uPRINTn(num)     printf("%X \n", (num));
+#define i64uPRINTn(num)     printf("%lX \n", (num));
 
-#define i32sPRINT(num)		printf("%d ", (num));
-#define i64sPRINT(num)		printf("%ld ", (num));
+#define i32sPRINT(num)      printf("%d ", (num));
+#define i64sPRINT(num)      printf("%ld ", (num));
 
-#define i32sPRINTn(num)		printf("%d: \n", (num));
-#define i64sPRINTn(num)		printf("%ld: \n", (num));
+#define i32sPRINTn(num)     printf("%d: \n", (num));
+#define i64sPRINTn(num)     printf("%ld: \n", (num));
 
-#define	pPRINTn(str,ptr)	printf(str": %p \n",(ptr))
-#define	dPRINTn(str,num)	printf(str": %d \n",(num))
+#define pPRINTn(str,ptr)    printf(str": %p \n",(ptr))
+#define dPRINTn(str,num)    printf(str": %d \n",(num))
 
 // simple [suite__case] function generator
 // need to manually insert: (void)state;
@@ -46,7 +56,7 @@ TEST(macros, getBlockHeaderInfo){
     (void)state;
 
     //given
-    size_t  arr[10]  = { -1, 0x2, 0, };
+    size_t  arr[8]  = { -1, 0x2, 0, };
     void*   baseptr  = (void*)(arr + 1);
 
     //when
@@ -58,6 +68,89 @@ TEST(macros, getBlockHeaderInfo){
     assert_int_equal( allocBit, (size_t)-1 & 0x1 );
 }
 
+TEST(macros, setBlockHeaderInfo){
+    (void)state;
+    skip();
+    //given
+    size_t  old_size     = 8;
+    size_t  new_size     = 16;
+
+    size_t  old_allocbit = 0;
+    size_t  new_allocbit = 1;
+    
+    size_t  header       = PACK(old_size, old_allocbit); 
+    size_t  arr[8]       = { header, 0, };
+    void*   baseptr      = (void*)(arr + 1);
+
+    //when
+    SET_SIZE(baseptr, new_size);
+        //SET_SIZE must check input validity!
+
+    //then
+    assert_int_not_equal(GET_SIZE(baseptr), old_size);
+    assert_int_not_equal(IS_ALLOC(baseptr), old_allocbit);
+
+    assert_int_equal(GET_SIZE(baseptr), new_size);
+    assert_int_equal(IS_ALLOC(baseptr), new_allocbit);
+}
+
+TEST(macros, SET_SIZEdontWriteAllocBit){
+    (void)state;
+    skip();
+    //given
+    size_t  old_size  = 8;
+    size_t  new_size  = 16;
+
+    size_t  allocbit  = 1;
+    
+    size_t  header    = PACK(old_size, allocbit); 
+    size_t  arr[8]    = { header, 0, };
+    void*   baseptr   = (void*)(arr + 1);
+
+    //expect_assert_failure(setAllocWrapper("new_size %% ALIGNMENT == 0",
+                //new_size % ALIGNMENT == 0));
+    //expect_mock_assert(new_size % ALIGNMENT == 0 && "new_size %% ALIGNMENT == 0" );
+    //when
+    SET_SIZE(baseptr, new_size);
+            dPRINTn("alloc?",IS_ALLOC(baseptr));
+    //then
+    assert_int_equal(IS_ALLOC(baseptr), allocbit);
+}
+
+void setAllocWrapper(void* bp, size_t val){
+    SET_ALLOC(bp,val);
+    //assert(condition);
+}
+
+TEST(macros, ifSET_ALLOC_BITvalIsNot0or1thenAssertionFailed){
+    (void)state;
+    //given
+    size_t  arr[8]  = { -1, 0, };
+    void*   baseptr = (void*)(arr + 1);
+
+    //then
+    SET_ALLOC(baseptr,0);   //expect NO assertion fail!
+    SET_ALLOC(baseptr,1);   //expect NO assertion fail!
+    expect_assert_failure( setAllocWrapper(baseptr,2) );
+}
+
+void setSizeWrapper(void* bp, size_t size){
+    SET_SIZE(bp,size);
+}
+
+TEST(macros, ifSET_SIZEvalIsNotAligendThenAssertionFailed){
+    (void)state;
+    //given
+    size_t  arr[8]      = { -1, 0, };
+    void*   baseptr     = (void*)(arr + 1);
+    size_t  unaligned   = 1;
+    size_t  aligned     = 8;
+
+    //then
+    SET_SIZE(baseptr, aligned); //expect NO assertion fail!
+    expect_assert_failure( setSizeWrapper(baseptr,unaligned) );
+}
+
 TEST(malloc, retAdrrMustBeAligned8byte){
     (void)state;
     //skip();
@@ -65,9 +158,9 @@ TEST(malloc, retAdrrMustBeAligned8byte){
     //given
     void*   addr;
     int32_t remainder;
+    Mm_init();
 
     //when
-    Mm_init();
     addr = mm_malloc(7);
 
     //then
@@ -82,8 +175,10 @@ TEST(malloc, argIsZeroThenReturnNULL){
     //given
     void*   addr;
     Mm_init();
-    addr = mm_malloc(0);
 
+    //when
+    addr = mm_malloc(0);
+    
     //then
     assert_null(addr);
 }
@@ -96,9 +191,9 @@ TEST(implicitFreeList, everyBlockSaveSizeInItsHeader){
     void*   base         = NULL;
     size_t  payload_size = 1004; 
     size_t  block_size   = ALIGN(payload_size + WSIZE); 
+    Mm_init();
 
     //when
-    Mm_init();
     base = mm_malloc(payload_size);
     *(int*)base = -1;   // write in payload..
             //dPRINTn("block base word val", GET(base));
@@ -117,9 +212,9 @@ TEST(implicitFreeList, mallocSetsAllocBitInBlockHeaderWhenAllocation){
     void*   baseptr      = NULL;
     int     is_allocated = 0;
     char*   headerptr; 
+    Mm_init();
 
     //when
-    Mm_init();
     baseptr = mm_malloc(123);
 
     //then
@@ -134,6 +229,7 @@ TEST(implicitFreeList, mm_initInsertAlignBlockInFronOfFreeList){
     void*   oldmem_brk  = NULL;
     void*   mem_brk     = NULL;
     int32_t remainder4  = 1;
+
     oldmem_brk = mem_sbrk(0);  // it return now mem_brk.
 
     //when
@@ -153,13 +249,21 @@ TEST(implicitFreeList, mm_initInsertAlignBlockInFronOfFreeList){
 
 TEST(implicitFreeList, mm_freeSetHeaderAllocBitZero){
     (void)state;
+    skip();
     //given
-    
+    Mm_init();
+    void*   baseptr      = mm_malloc(1023);
+    size_t  old_allocbit = IS_ALLOC(baseptr);
+ 
     //when
+    mm_free(baseptr);
+    size_t  new_allocbit = IS_ALLOC(baseptr);
 
     //then
-    //assert_int_equal(alloc_bit, 0);
+    assert_int_not_equal(old_allocbit, new_allocbit);
+    assert_int_equal(new_allocbit, 0);
 }
+
 static int setUp(void** state){
     mem_init();// it must be called in TESTER!
     //printf("  mem_brk = %p is already aligned? why? \n", mem_sbrk(0));
@@ -175,6 +279,10 @@ static int tearDown(void** state){
 int main(void) {
     const struct CMUnitTest tests[] = {
         cmocka_unit_test(macros__getBlockHeaderInfo),
+        cmocka_unit_test(macros__setBlockHeaderInfo),
+        cmocka_unit_test(macros__ifSET_ALLOC_BITvalIsNot0or1thenAssertionFailed),
+        cmocka_unit_test(macros__ifSET_SIZEvalIsNotAligendThenAssertionFailed),
+        cmocka_unit_test(macros__SET_SIZEdontWriteAllocBit),
         cmocka_unit_test_setup_teardown(malloc__retAdrrMustBeAligned8byte, setUp, tearDown),
         cmocka_unit_test_setup_teardown(malloc__argIsZeroThenReturnNULL, setUp, tearDown),
         // implicit free list

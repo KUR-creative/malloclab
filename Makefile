@@ -23,6 +23,10 @@ t:
 	$(CC) $(CFLAGS) -c memlib.c memlib.h
 	$(CC) $(CFLAGS) -o mm-test memlib.c memlib.h mm.c mm.h mm-test.c $(LIB)
 	./mm-test 2>&1 | python printer.py		#stderr to stdout.
+	screen -S s1 -X stuff "clear;./mm-test 2>&1 | python printer.py"
+	# ^ screen s1 session must be initailaized.
+	# gnome-terminal 폰트 크기 조절 arg를 알아야 함.
+	# 나중에 빔 초기화 단축키 등록: 스크린을 자동생성함.
 		    	
 full: $(OBJS)
 	$(CC) $(CFLAGS) -o mdriver $(OBJS)

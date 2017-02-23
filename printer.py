@@ -20,8 +20,12 @@ flen = len('FAILED')
 for line in fileinput.input():
     if isStrInLine(line, '[  FAILED  ]') or isStrInLine(line, '[  ERROR   ]'): 
         headColorPrinter(line, RED)
+    #elif isStrInLine(line, '[ RUN      ]'):
+        #pass
+        #subprocess.call(['printf', NOCOL + line])
     elif isStrInLine(line, '[       OK ]'):
         headColorPrinter(line, LGREEN)
+        pass
     elif isStrInLine(line, '[==========]'):
         headColorPrinter(line, CYAN)
     elif isStrInLine(line, '[  SKIPPED ]'):

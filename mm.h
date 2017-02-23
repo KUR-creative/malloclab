@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <assert.h>
 
 extern int      mm_init(void);
 extern void*    mm_malloc(size_t size);
@@ -30,6 +31,18 @@ extern void     Mm_init(void);
 #define GET_SIZE(bp)    GET_SIZE_BITS( HDRP(bp) )
 #define IS_ALLOC(bp)    GET_ALLOC_BIT( HDRP(bp) )
 
+/* Set block size 
+ * NOTE: size must be ALIGNED! */
+#define SET_SIZE(bp, size)  do{                            \
+                                assert(size % ALIGNMENT == 0);   \
+                            }while(0);
+//PUT(HDRP(bp), size);
+
+#define SET_ALLOC(bp,val)   do{                                 \
+                                assert(val == 0 || val == 1);   \
+                            }while(0);
+                                    
+
 /* Ginven block ptr bp, compute address of its header and footer*/
 #define HDRP(bp)        ((char*)(bp) - WSIZE)
 
@@ -49,4 +62,4 @@ typedef struct {
 } team_t;
 
 extern team_t team;
-
+   

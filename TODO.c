@@ -70,9 +70,18 @@ read book carefully. and collect Requriements.
 
     implement heap checker
 
-    //write getBlockHeaderInfoMacros
+    //write getBlockHeaderInfo macros
+    write setBlockHeaderInfo macros
+        size setter never set allocbit. and vice versa.
+        use assert, and check that input size value are aligned by 8
+            //need to know test c assertion with cmocka.
+            simplify assertion test.
 
+    every setXXX macros(setFooter...) must check input using assert(...)
+        and test assertion with unit test!
+        also, pack doesn't check input.
 
+    //c assertion test        
 
 
 

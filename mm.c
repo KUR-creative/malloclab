@@ -86,17 +86,6 @@ void* mm_malloc(size_t size)
 }
 
 /*
- * error checked mm_init. 
- */
-void Mm_init(void)
-{
-    if(mm_init() == -1){      
-        puts("mm_init failed!");
-        exit(1);
-    }
-}
-
-/*
  * mm_free - Freeing a block.
  */
 void mm_free(void *ptr)
@@ -125,7 +114,18 @@ void *mm_realloc(void *ptr, size_t size)
     return newptr;
 }
 
+//----------mine----------
 
+/*
+ * error checked mm_init. 
+ */
+void Mm_init(void)
+{
+    if(mm_init() == -1){      
+        puts("mm_init failed!");
+        exit(1);
+    }
+}
 
 
 
