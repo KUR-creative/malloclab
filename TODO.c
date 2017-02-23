@@ -51,6 +51,7 @@ read book carefully. and collect Requriements.
 //TODO:
 
 1. implicit free list: first, let's see SUCCESS!
+<<<<<<< HEAD
     //why my unit test always fail?
         //because not mm_init but TESTER need to call mem_init(). 
     //ret val of malloc(0) must be NULL.
@@ -82,6 +83,10 @@ read book carefully. and collect Requriements.
         also, pack doesn't check input.
 
     //c assertion test        
+=======
+	//why my unit test always fail?
+		//because not mm_init but TESTER need to call mem_init(). 
+>>>>>>> f7ebd4a70344fb9d55c318310909f1fe1daf16dd
 
 
 
