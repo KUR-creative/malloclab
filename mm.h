@@ -33,8 +33,8 @@ extern void     Mm_init(void);
 
 /* Set block size 
  * NOTE: size must be ALIGNED! */
-#define SET_SIZE(bp, size)  do{                            \
-                                assert(size % ALIGNMENT == 0);   \
+#define SET_SIZE(bp, size)  do{                                 \
+                                assert(size % ALIGNMENT == 0);  \
                             }while(0);
 //PUT(HDRP(bp), size);
 
